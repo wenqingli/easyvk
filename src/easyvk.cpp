@@ -355,6 +355,8 @@ namespace easyvk
 
     // Define device info
     std::vector<const char *> enabledExtensions{VK_KHR_PIPELINE_EXECUTABLE_PROPERTIES_EXTENSION_NAME};
+    enabledExtensions.push_back("VK_AMD_shader_core_properties");
+    enabledExtensions.push_back("VK_AMD_shader_core_properties2");
     if (supportsAMDShaderStats) enabledExtensions.push_back(VK_AMD_SHADER_INFO_EXTENSION_NAME);
     VkDeviceCreateInfo deviceCreateInfo;
     deviceCreateInfo = {
@@ -377,6 +379,14 @@ namespace easyvk
 
     // Get device properties
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    //VkPhysicalDeviceShaderCoreProperties2AMD props2 = {
+    properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    properties2.pNext = &shaderCoreProps;
+    shaderCoreProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD;
+    shaderCoreProps.pNext = &shaderCoreProps2;
+    shaderCoreProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD;
+    shaderCoreProps2.pNext = nullptr;
+    vkGetPhysicalDeviceProperties2(physicalDevice, &properties2);
   }
 
   uint32_t Device::selectMemory(VkBuffer buffer, VkMemoryPropertyFlags flags)
@@ -616,7 +626,12 @@ namespace easyvk
     // Update contents of descriptor set object
     vkUpdateDescriptorSets(device.device, writeDescriptorSets.size(), &writeDescriptorSets.front(), 0, {});
 
+#ifdef _WIN32
+    ///TODO: for now just to pass build!
+    constexpr uint32_t numSpecConstants = 3;
+#else
     uint32_t numSpecConstants = 3 + workgroupMemoryLengths.size();
+#endif
     VkSpecializationMapEntry specMap[numSpecConstants];
     uint32_t specMapContent[numSpecConstants];
 

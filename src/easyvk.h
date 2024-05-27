@@ -55,6 +55,9 @@ namespace easyvk
     Device(Instance &_instance, VkPhysicalDevice _physicalDevice);
     VkDevice device;
     VkPhysicalDeviceProperties properties;
+    VkPhysicalDeviceProperties2 properties2;
+    VkPhysicalDeviceShaderCorePropertiesAMD shaderCoreProps;
+    VkPhysicalDeviceShaderCoreProperties2AMD shaderCoreProps2;
     uint32_t selectMemory(VkBuffer buffer, VkMemoryPropertyFlags flags);
     uint32_t computeFamilyId = uint32_t(-1);
     uint32_t subgroupSize();
